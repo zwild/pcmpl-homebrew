@@ -3,7 +3,7 @@
 ;; Copyright (C) 2014 Wei Zhao
 ;; Author: Wei Zhao <kaihaosw@gmail.com>
 ;; Git: https://github.com/kaihaosw/pcmpl-homebrew.git
-;; Version: 0.3
+;; Version: 0.4
 ;; Created: 2014-08-11
 ;; Keywords: pcomplete, homebrew, tools
 
@@ -75,6 +75,8 @@
   "Pcomplete for homebrew."
   (pcomplete-here* pcmpl-homebrew-commands)
   (cond
+   ((pcomplete-match (regexp-opt '("linkapps" "unlinkapps") 1))
+    nil)
    ((pcomplete-match (regexp-opt pcmpl-homebrew-local-formulas 1))
     (pcomplete-here (pcmpl-homebrew-installed-formulas)))
    ((pcomplete-match (regexp-opt pcmpl-homebrew-global-formulas) 1)
