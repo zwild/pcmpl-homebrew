@@ -3,7 +3,7 @@
 ;; Copyright (C) 2014 Wei Zhao
 ;; Author: Wei Zhao <kaihaosw@gmail.com>
 ;; Git: https://github.com/kaihaosw/pcmpl-homebrew.git
-;; Version: 0.1
+;; Version: 0.2
 ;; Created: 2014-08-11
 ;; Keywords: pcomplete, homebrew, tools
 
@@ -33,32 +33,51 @@
 ;;; Code:
 (require 'pcomplete)
 
-(defconst pcmpl-homebrew-commands
-  '("info" "home" "options" "install" "uninstall" "search" "list"
-    "update" "upgrade" "pin/unpin" "doctor" "--env" "config" "create"
-    "edit")
-  "List of `homebrew' commands.")
+(defun pcmpl-homebrew-commands ()
+  "Homebrew commands from `brew commands'"
+  (with-temp-buffer
+    (call-process-shell-command "brew" nil (current-buffer) nil "commands")
+    (goto-char 0)
+    (search-forward "Built-in commands")
+    (let (commands stop)
+      (while (and (re-search-forward
+                   "^\\([[:word:]-.]+\\)"
+                   nil t) (not stop))
+        (if (string= (match-string 1) "External")
+            (setq stop 1)
+          (push (match-string 1) commands)))
+      (sort commands #'string<))))
 
-(defconst pcmpl-homebrew-FORMULAs
-  '("info" "home" "options" "uninstall" "list" "upgrade" "pin/unpin")
-  "List of commands that need a formula.")
+(defconst pcmpl-homebrew-commands (pcmpl-homebrew-commands)
+  "List of commands from `brew commands'")
 
-(defun pcmpl-homebrew-installed-FORMULAs ()
+(defconst pcmpl-homebrew-local-formulas
+  '("cleanup" "link" "list" "pin" "remove" "unlink" "unpin" "uninstall"
+    "upgrade" "test")
+  "List of command that use local formulas.")
+
+(defconst pcmpl-homebrew-global-formulas
+  '("audit" "cat" "deps" "edit" "home" "info" "install" "log" "reinstall"
+    "search" "uses")
+  "List of command that use global formulas.")
+
+(defun pcmpl-homebrew-installed-formulas ()
   "List of the installed formulas."
   (split-string (shell-command-to-string "brew list")))
 
-(defun pcmpl-homebrew-searched-FORMULAs ()
+(defun pcmpl-homebrew-searched-formulas ()
   "List of all the formulas."
   (split-string (shell-command-to-string "brew search")))
 
 ;;;###autoload
 (defun pcomplete/brew ()
+  "Pcomplete for homebrew."
   (pcomplete-here* pcmpl-homebrew-commands)
   (cond
-   ((pcomplete-match (regexp-opt pcmpl-homebrew-FORMULAs 1))
-    (pcomplete-here (pcmpl-homebrew-installed-FORMULAs)))
-   ((pcomplete-match (regexp-opt '("install" "search")) 1)
-    (pcomplete-here (pcmpl-homebrew-searched-FORMULAs)))))
+   ((pcomplete-match (regexp-opt pcmpl-homebrew-local-formulas 1))
+    (pcomplete-here (pcmpl-homebrew-installed-formulas)))
+   ((pcomplete-match (regexp-opt pcmpl-homebrew-global-formulas) 1)
+    (pcomplete-here (pcmpl-homebrew-searched-formulas)))))
 
 (provide 'pcmpl-homebrew)
 
