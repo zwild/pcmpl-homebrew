@@ -3,7 +3,7 @@
 ;; Copyright (C) 2014 Wei Zhao
 ;; Author: Wei Zhao <kaihaosw@gmail.com>
 ;; Git: https://github.com/kaihaosw/pcmpl-homebrew.git
-;; Version: 0.4
+;; Version: 0.5
 ;; Created: 2014-08-11
 ;; Keywords: pcomplete, homebrew, tools
 
@@ -49,38 +49,51 @@
       (sort commands #'string<))))
 
 (defconst pcmpl-homebrew-commands
-  (append (pcmpl-homebrew-commands) '("--version"))
-  "List of commands from `brew commands'")
+  (append (pcmpl-homebrew-commands) '("--version" "remove"))
+  "List of homebrew commands.")
 
-(defconst pcmpl-homebrew-local-formulas
+(defconst pcmpl-homebrew-local-formulas-commands
   '("cleanup" "link" "list" "pin" "remove" "unlink" "unpin" "uninstall"
     "upgrade" "test" "--prefix")
-  "List of command that use local formulas.")
+  "List of commands that use local formulas.")
 
-(defconst pcmpl-homebrew-global-formulas
+(defconst pcmpl-homebrew-global-formulas-commands
   '("audit" "cat" "deps" "edit" "fetch" "home" "info" "install" "log"
     "missing" "reinstall" "search" "uses")
-  "List of command that use global formulas.")
+  "List of commands that use global formulas.")
 
 (defun pcmpl-homebrew-installed-formulas ()
   "List of the installed formulas."
   (split-string (shell-command-to-string "brew list")))
 
-(defun pcmpl-homebrew-searched-formulas ()
+(defun pcmpl-homebrew-all-formulas ()
   "List of all the formulas."
   (split-string (shell-command-to-string "brew search")))
 
+(defconst pcmpl-homebrew-all-formulas-count
+  (length (pcmpl-homebrew-all-formulas))
+  "Count of homebrew formulas.")
+
+;; TODO
+(defvar pcmpl-homebrew-show-p nil)
+
 ;;;###autoload
 (defun pcomplete/brew ()
-  "Pcomplete for homebrew."
   (pcomplete-here* pcmpl-homebrew-commands)
   (cond
    ((pcomplete-match (regexp-opt '("linkapps" "unlinkapps") 1))
     nil)
-   ((pcomplete-match (regexp-opt pcmpl-homebrew-local-formulas 1))
-    (pcomplete-here (pcmpl-homebrew-installed-formulas)))
-   ((pcomplete-match (regexp-opt pcmpl-homebrew-global-formulas) 1)
-    (pcomplete-here (pcmpl-homebrew-searched-formulas)))))
+   ((pcomplete-match (regexp-opt pcmpl-homebrew-local-formulas-commands) 1)
+    (while (pcomplete-here (pcmpl-homebrew-installed-formulas))))
+   ((pcomplete-match (regexp-opt pcmpl-homebrew-global-formulas-commands) 1)
+    (progn
+      (when (string= (car (cddr pcomplete-args)) "")
+        (setq pcmpl-homebrew-show-p
+              (yes-or-no-p
+               (format "Do you wish to see all %d possibilities?"
+                       pcmpl-homebrew-all-formulas-count))))
+      (when pcmpl-homebrew-show-p
+        (while (pcomplete-here (pcmpl-homebrew-all-formulas))))))))
 
 (provide 'pcmpl-homebrew)
 
