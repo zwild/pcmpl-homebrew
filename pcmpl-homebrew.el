@@ -3,7 +3,7 @@
 ;; Copyright (C) 2014 Wei Zhao
 ;; Author: Wei Zhao <kaihaosw@gmail.com>
 ;; Git: https://github.com/kaihaosw/pcmpl-homebrew.git
-;; Version: 0.2
+;; Version: 0.3
 ;; Created: 2014-08-11
 ;; Keywords: pcomplete, homebrew, tools
 
@@ -48,17 +48,18 @@
           (push (match-string 1) commands)))
       (sort commands #'string<))))
 
-(defconst pcmpl-homebrew-commands (pcmpl-homebrew-commands)
+(defconst pcmpl-homebrew-commands
+  (append (pcmpl-homebrew-commands) '("--version"))
   "List of commands from `brew commands'")
 
 (defconst pcmpl-homebrew-local-formulas
   '("cleanup" "link" "list" "pin" "remove" "unlink" "unpin" "uninstall"
-    "upgrade" "test")
+    "upgrade" "test" "--prefix")
   "List of command that use local formulas.")
 
 (defconst pcmpl-homebrew-global-formulas
-  '("audit" "cat" "deps" "edit" "home" "info" "install" "log" "reinstall"
-    "search" "uses")
+  '("audit" "cat" "deps" "edit" "fetch" "home" "info" "install" "log"
+    "missing" "reinstall" "search" "uses")
   "List of command that use global formulas.")
 
 (defun pcmpl-homebrew-installed-formulas ()
