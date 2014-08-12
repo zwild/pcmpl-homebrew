@@ -3,7 +3,7 @@
 ;; Copyright (C) 2014 Wei Zhao
 ;; Author: Wei Zhao <kaihaosw@gmail.com>
 ;; Git: https://github.com/kaihaosw/pcmpl-homebrew.git
-;; Version: 0.5
+;; Version: 0.5.1
 ;; Created: 2014-08-11
 ;; Keywords: pcomplete, homebrew, tools
 
@@ -46,10 +46,10 @@
         (if (string= (match-string 1) "External")
             (setq stop 1)
           (push (match-string 1) commands)))
-      (sort commands #'string<))))
+      commands)))
 
 (defconst pcmpl-homebrew-commands
-  (append (pcmpl-homebrew-commands) '("--version" "remove"))
+  (sort (append '("--version" "remove") (pcmpl-homebrew-commands)) 'string<)
   "List of homebrew commands.")
 
 (defconst pcmpl-homebrew-local-formulas-commands
