@@ -3,7 +3,7 @@
 ;; Copyright (C) 2014 Wei Zhao
 ;; Author: Wei Zhao <kaihaosw@gmail.com>
 ;; Git: https://github.com/kaihaosw/pcmpl-homebrew.git
-;; Version: 0.6
+;; Version: 0.7
 ;; Created: 2014-08-11
 ;; Keywords: pcomplete, homebrew, tools
 
@@ -70,11 +70,7 @@
   "List of all the formulas."
   (split-string (shell-command-to-string "brew search")))
 
-(defconst pcmpl-homebrew-all-formulas-count
-  (length (pcmpl-homebrew-all-formulas))
-  "Count of homebrew formulas.")
-
-(defun pcmpl-homebrew-get-command-options (command)
+(defconst pcmpl-homebrew-options-hash-table
   (let (options-hash)
     (setq options-hash (make-hash-table :test 'equal))
     (puthash "cleanup" '("--force" "-n" "-s" "-ns") options-hash)
@@ -107,7 +103,11 @@
                          "--interactive" "--git") options-hash)
 
     (puthash "uses" '("--installed" "--recursive" "--devel" "--HEAD") options-hash)
-    (gethash command options-hash)))
+    options-hash))
+
+
+(defun pcmpl-homebrew-get-command-options (command)
+  (gethash command pcmpl-homebrew-options-hash-table))
 
 (defun pcmpl-homebrew-pcomplete-options (command)
   (when (pcomplete-match "^-" 0)
