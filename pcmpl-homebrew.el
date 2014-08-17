@@ -3,7 +3,7 @@
 ;; Copyright (C) 2014 Wei Zhao
 ;; Author: Wei Zhao <kaihaosw@gmail.com>
 ;; Git: https://github.com/kaihaosw/pcmpl-homebrew.git
-;; Version: 0.5.1
+;; Version: 0.6
 ;; Created: 2014-08-11
 ;; Keywords: pcomplete, homebrew, tools
 
@@ -49,11 +49,11 @@
       commands)))
 
 (defconst pcmpl-homebrew-commands
-  (sort (append '("--version" "remove") (pcmpl-homebrew-commands)) 'string<)
+  (sort (append '("--version" "remove" "rm") (pcmpl-homebrew-commands)) 'string<)
   "List of homebrew commands.")
 
 (defconst pcmpl-homebrew-local-formulas-commands
-  '("cleanup" "link" "list" "pin" "remove" "unlink" "unpin" "uninstall"
+  '("cleanup" "ln" "link" "list" "pin" "rm" "remove" "unlink" "unpin" "uninstall"
     "upgrade" "test" "--prefix")
   "List of commands that use local formulas.")
 
@@ -73,6 +73,70 @@
 (defconst pcmpl-homebrew-all-formulas-count
   (length (pcmpl-homebrew-all-formulas))
   "Count of homebrew formulas.")
+
+;; homebrew command options
+(defconst pcmpl-homebrew-cleanup-options
+  '("--force" "-n" "-s" "-ns"))
+
+(defconst pcmpl-homebrew-deps-options
+  '("--1" "-n" "--union" "--tree" "--all" "--installed"))
+
+(defconst pcmpl-homebrew-fetch-options
+  '("--force" "-v" "--devel" "--HEAD" "--deps"
+   "--build-from-source" "--force-bottle"))
+
+(defconst pcmpl-homebrew-info-options
+  '("--github" "--json=" "--all" "--installed"))
+
+(defconst pcmpl-homebrew-install-options
+  '("--debug" "--env=" "--ignore-dependencies" "--only-dependencies"
+   "--cc=" "--build-from-source" "--devel" "--HEAD"
+   "--interactive" "--git"))
+
+(defconst pcmpl-homebrew-link-options
+  '("--overwrite" "--dry-run" "--force"))
+
+(defconst pcmpl-homebrew-linkapps-options
+  '("--local"))
+
+(defconst pcmpl-homebrew-list-options
+  '("--unbrewed" "--versions" "--multiple" "--pinned"))
+
+(defconst pcmpl-homebrew-options-options
+  '("--compact" "--all" "--installed"))
+
+(defconst pcmpl-homebrew-outdated-options
+  '("--quiet"))
+
+(defconst pcmpl-homebrew-uninstall-options
+  '("--force"))
+
+(defconst pcmpl-homebrew-search-options
+  '("--debian" "--fedora" "--fink" "--macports" "--opensuse" "--ubuntu"))
+
+(defconst pcmpl-homebrew-sh-options
+  '("--env=std"))
+
+(defconst pcmpl-homebrew-tap-options
+  '("--repair"))
+
+(defconst pcmpl-homebrew-test-options
+  '("--devel" "--HEAD"))
+
+(defconst pcmpl-homebrew-unlinkapps-options
+  '("--local"))
+
+(defconst pcmpl-homebrew-unpack-options
+  '("--git" "--patch" "--destdir="))
+
+(defconst pcmpl-homebrew-update-options
+  '("--rebase"))
+
+(defconst pcmpl-homebrew-upgrade-options
+  pcmpl-homebrew-install-options)
+
+(defconst pcmpl-homebrew-uses-options
+  '("--installed" "--recursive" "--devel" "--HEAD"))
 
 ;; TODO
 (defvar pcmpl-homebrew-show-p nil)
