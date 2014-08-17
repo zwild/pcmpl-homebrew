@@ -74,69 +74,39 @@
   (length (pcmpl-homebrew-all-formulas))
   "Count of homebrew formulas.")
 
-;; homebrew command options
-(defconst pcmpl-homebrew-cleanup-options
-  '("--force" "-n" "-s" "-ns"))
+(defun pcmpl-homebrew-get-command-options (command)
+  (let (options-hash)
+    (setq options-hash (make-hash-table :test 'equal))
+    (puthash "cleanup" '("--force" "-n" "-s" "-ns") options-hash)
+    (puthash "deps" '("--1" "-n" "--union" "--tree" "--all" "--installed") options-hash)
+    (puthash "fetch" '("--force" "-v" "--devel" "--HEAD" "--deps"
+                       "--build-from-source" "--force-bottle") options-hash)
+    (puthash "info" '("--github" "--json=" "--all" "--installed") options-hash)
+    (puthash "install" '("--debug" "--env=" "--ignore-dependencies" "--only-dependencies"
+                         "--cc=" "--build-from-source" "--devel" "--HEAD"
+                         "--interactive" "--git") options-hash)
+    (puthash "link" '("--overwrite" "--dry-run" "--force") options-hash)
+    (puthash "linkapps" '("--local") options-hash)
+    (puthash "list" '("--unbrewed" "--versions" "--multiple" "--pinned") options-hash)
+    (puthash "options" '("--compact" "--all" "--installed") options-hash)
+    (puthash "outdated" '("--quiet") options-hash)
+    (puthash "uninstall" '("--force") options-hash)
+    (puthash "rm" '("--force") options-hash)
+    (puthash "search" '("--debian" "--fedora" "--fink" "--macports"
+                        "--opensuse" "--ubuntu") options-hash)
+    (puthash "remove" '("--force") options-hash)
+    (puthash "sh" '("--env=std") options-hash)
+    (puthash "tap" '("--repair") options-hash)
+    (puthash "test" '("--devel" "--HEAD") options-hash)
+    (puthash "unlinkapps" '("--local") options-hash)
+    (puthash "unpack" '("--git" "--patch" "--destdir=") options-hash)
+    (puthash "update" '("--rebase") options-hash)
+    (puthash "upgrade" '("--debug" "--env=" "--ignore-dependencies" "--only-dependencies"
+                         "--cc=" "--build-from-source" "--devel" "--HEAD"
+                         "--interactive" "--git") options-hash)
 
-(defconst pcmpl-homebrew-deps-options
-  '("--1" "-n" "--union" "--tree" "--all" "--installed"))
-
-(defconst pcmpl-homebrew-fetch-options
-  '("--force" "-v" "--devel" "--HEAD" "--deps"
-   "--build-from-source" "--force-bottle"))
-
-(defconst pcmpl-homebrew-info-options
-  '("--github" "--json=" "--all" "--installed"))
-
-(defconst pcmpl-homebrew-install-options
-  '("--debug" "--env=" "--ignore-dependencies" "--only-dependencies"
-   "--cc=" "--build-from-source" "--devel" "--HEAD"
-   "--interactive" "--git"))
-
-(defconst pcmpl-homebrew-link-options
-  '("--overwrite" "--dry-run" "--force"))
-
-(defconst pcmpl-homebrew-linkapps-options
-  '("--local"))
-
-(defconst pcmpl-homebrew-list-options
-  '("--unbrewed" "--versions" "--multiple" "--pinned"))
-
-(defconst pcmpl-homebrew-options-options
-  '("--compact" "--all" "--installed"))
-
-(defconst pcmpl-homebrew-outdated-options
-  '("--quiet"))
-
-(defconst pcmpl-homebrew-uninstall-options
-  '("--force"))
-
-(defconst pcmpl-homebrew-search-options
-  '("--debian" "--fedora" "--fink" "--macports" "--opensuse" "--ubuntu"))
-
-(defconst pcmpl-homebrew-sh-options
-  '("--env=std"))
-
-(defconst pcmpl-homebrew-tap-options
-  '("--repair"))
-
-(defconst pcmpl-homebrew-test-options
-  '("--devel" "--HEAD"))
-
-(defconst pcmpl-homebrew-unlinkapps-options
-  '("--local"))
-
-(defconst pcmpl-homebrew-unpack-options
-  '("--git" "--patch" "--destdir="))
-
-(defconst pcmpl-homebrew-update-options
-  '("--rebase"))
-
-(defconst pcmpl-homebrew-upgrade-options
-  pcmpl-homebrew-install-options)
-
-(defconst pcmpl-homebrew-uses-options
-  '("--installed" "--recursive" "--devel" "--HEAD"))
+    (puthash "uses" '("--installed" "--recursive" "--devel" "--HEAD") options-hash)
+    (gethash command options-hash)))
 
 ;; TODO
 (defvar pcmpl-homebrew-show-p nil)
