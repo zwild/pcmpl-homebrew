@@ -3,7 +3,7 @@
 ;; Copyright (C) 2014 Wei Zhao
 ;; Author: Wei Zhao <kaihaosw@gmail.com>
 ;; Git: https://github.com/kaihaosw/pcmpl-homebrew.git
-;; Version: 0.7
+;; Version: 0.8
 ;; Created: 2014-08-11
 ;; Keywords: pcomplete, homebrew, tools
 
@@ -52,6 +52,7 @@
   (sort (append '("--version" "ln" "remove" "rm") (pcmpl-homebrew-commands)) 'string<)
   "List of homebrew commands.")
 
+;;
 (defconst pcmpl-homebrew-local-formulas-commands
   '("cleanup" "ln" "link" "list" "pin" "rm" "remove" "unlink" "unpin" "uninstall"
     "upgrade" "test" "--prefix")
@@ -70,6 +71,7 @@
   "List of all the formulas."
   (split-string (shell-command-to-string "brew search")))
 
+;;
 (defconst pcmpl-homebrew-options-hash-table
   (let (options-hash)
     (setq options-hash (make-hash-table :test 'equal))
@@ -105,33 +107,26 @@
     (puthash "uses" '("--installed" "--recursive" "--devel" "--HEAD") options-hash)
     options-hash))
 
-
 (defun pcmpl-homebrew-get-command-options (command)
   (gethash command pcmpl-homebrew-options-hash-table))
 
-(defun pcmpl-homebrew-pcomplete-options (command)
-  (when (pcomplete-match "^-" 0)
-    (pcomplete-here (pcmpl-homebrew-get-command-options command))))
 
 ;;;###autoload
 (defun pcomplete/brew ()
-  (pcomplete-here* pcmpl-homebrew-commands)
-  (let ((command (cadr pcomplete-args)))
-    (cond
-     ((pcomplete-match (regexp-opt '("linkapps" "unlinkapps") 1))
-      (progn
-        (pcmpl-homebrew-pcomplete-options command)
-        nil))
-     ((pcomplete-match (regexp-opt pcmpl-homebrew-local-formulas-commands) 1)
-      (progn
-        (pcmpl-homebrew-pcomplete-options command)
-        (while (pcomplete-here (pcmpl-homebrew-installed-formulas)))))
-     ((pcomplete-match (regexp-opt pcmpl-homebrew-global-formulas-commands) 1)
-      (progn
-        (pcmpl-homebrew-pcomplete-options command)
-        (while (pcomplete-here (pcmpl-homebrew-all-formulas))))))))
+  (let* ((command (nth 1 pcomplete-args))
+         (options (pcmpl-homebrew-get-command-options command)))
+    (pcomplete-here* pcmpl-homebrew-commands)
+    (dolist (opt pcmpl-homebrew-commands)
+      (when (string= opt command)
+        (while
+            (cond
+             ((pcomplete-match "^-" 0)
+              (pcomplete-here (pcmpl-homebrew-get-command-options command)))
+             ((member command pcmpl-homebrew-local-formulas-commands)
+              (pcomplete-here (pcmpl-homebrew-installed-formulas)))
+             ((member command pcmpl-homebrew-global-formulas-commands)
+              (pcomplete-here (pcmpl-homebrew-all-formulas)))))))))
 
 (provide 'pcmpl-homebrew)
 
 ;;; pcmpl-homebrew.el ends here
-
