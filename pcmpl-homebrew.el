@@ -3,7 +3,7 @@
 ;; Copyright (C) 2014 Wei Zhao
 ;; Author: Wei Zhao <kaihaosw@gmail.com>
 ;; Git: https://github.com/kaihaosw/pcmpl-homebrew.git
-;; Version: 0.8
+;; Version: 0.9
 ;; Created: 2014-08-11
 ;; Keywords: pcomplete, homebrew, tools
 
@@ -113,19 +113,17 @@
 
 ;;;###autoload
 (defun pcomplete/brew ()
-  (let* ((command (nth 1 pcomplete-args))
-         (options (pcmpl-homebrew-get-command-options command)))
+  (let ((command (nth 1 pcomplete-args)))
     (pcomplete-here* pcmpl-homebrew-commands)
-    (dolist (opt pcmpl-homebrew-commands)
-      (when (string= opt command)
-        (while
-            (cond
-             ((pcomplete-match "^-" 0)
-              (pcomplete-here (pcmpl-homebrew-get-command-options command)))
-             ((member command pcmpl-homebrew-local-formulas-commands)
-              (pcomplete-here (pcmpl-homebrew-installed-formulas)))
-             ((member command pcmpl-homebrew-global-formulas-commands)
-              (pcomplete-here (pcmpl-homebrew-all-formulas)))))))))
+    (when (member command pcmpl-homebrew-commands)
+      (while
+          (cond
+           ((pcomplete-match "^-" 0)
+            (pcomplete-here (pcmpl-homebrew-get-command-options command)))
+           ((member command pcmpl-homebrew-local-formulas-commands)
+            (pcomplete-here (pcmpl-homebrew-installed-formulas)))
+           ((member command pcmpl-homebrew-global-formulas-commands)
+            (pcomplete-here (pcmpl-homebrew-all-formulas))))))))
 
 (provide 'pcmpl-homebrew)
 
