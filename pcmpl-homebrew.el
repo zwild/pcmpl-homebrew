@@ -2,8 +2,8 @@
 
 ;; Copyright (C) 2014 Wei Zhao
 ;; Author: Wei Zhao <kaihaosw@gmail.com>
-;; Git: https://github.com/kaihaosw/pcmpl-homebrew.git
-;; Version: 0.9
+;; Git: https://github.com/hiddenlotus/pcmpl-homebrew.git
+;; Version: 0.91
 ;; Created: 2014-08-11
 ;; Keywords: pcomplete, homebrew, tools
 
@@ -102,7 +102,7 @@
     (puthash "update" '("--rebase") options-hash)
     (puthash "upgrade" '("--debug" "--env=" "--ignore-dependencies" "--only-dependencies"
                          "--cc=" "--build-from-source" "--devel" "--HEAD"
-                         "--interactive" "--git") options-hash)
+                         "--interactive" "--git" "--all") options-hash)
 
     (puthash "uses" '("--installed" "--recursive" "--devel" "--HEAD") options-hash)
     options-hash))
