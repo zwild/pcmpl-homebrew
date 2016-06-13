@@ -1,0 +1,11 @@
+#+author: hiddenlotus
+#+startup: content
+
+** Introduction
+   Pcomplete for homebrew.
+
+** Screenshots
+   [[./screenshots/1.pnq]]
+   [[./screenshots/2.png]]
+   [[./screenshots/3.png]]
+   [[./screenshots/4.png]]

@@ -1,9 +1,9 @@
 ;;; pcmpl-homebrew.el --- pcomplete for homebrew
 
-;; Copyright (C) 2014 Wei Zhao
-;; Author: Wei Zhao <kaihaosw@gmail.com>
+;; Copyright (C) 2014, 2015, 2016 hiddenlotus
+;; Author: hiddenlotus <kaihaosw@gmail.com>
 ;; Git: https://github.com/hiddenlotus/pcmpl-homebrew.git
-;; Version: 0.91
+;; Version: 0.92
 ;; Created: 2014-08-11
 ;; Keywords: pcomplete, homebrew, tools
 
@@ -33,20 +33,19 @@
 ;;; Code:
 (require 'pcomplete)
 
+(defcustom homebrew-command (executable-find "brew")
+  "Homebrew command.")
+
 (defun pcmpl-homebrew-commands ()
-  "Homebrew commands from `brew commands'"
+  (interactive)
   (with-temp-buffer
-    (call-process-shell-command "brew" nil (current-buffer) nil "commands")
+    (call-process-shell-command homebrew-command nil (current-buffer) nil "commands")
     (goto-char 0)
     (search-forward "Built-in commands")
-    (let (commands stop)
-      (while (and (re-search-forward
-                   "^\\([[:word:]-.]+\\)"
-                   nil t) (not stop))
-        (if (string= (match-string 1) "External")
-            (setq stop 1)
-          (push (match-string 1) commands)))
-      commands)))
+    (let (commands)
+      (while (re-search-forward "^\\([[:word:]-.]+\\)" nil t)
+        (push (match-string 1) commands))
+      (remove "External" commands))))
 
 (defconst pcmpl-homebrew-commands
   (sort (append '("--version" "ln" "remove" "rm") (pcmpl-homebrew-commands)) 'string<)
@@ -123,7 +122,9 @@
            ((member command pcmpl-homebrew-local-formulas-commands)
             (pcomplete-here (pcmpl-homebrew-installed-formulas)))
            ((member command pcmpl-homebrew-global-formulas-commands)
-            (pcomplete-here (pcmpl-homebrew-all-formulas))))))))
+            (pcomplete-here (pcmpl-homebrew-all-formulas)))
+           ((string= command "services")
+            (pcomplete-here '("cleanup" "list" "restart" "start" "stop"))))))))
 
 (provide 'pcmpl-homebrew)
 
