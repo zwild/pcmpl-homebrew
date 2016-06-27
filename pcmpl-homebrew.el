@@ -3,7 +3,7 @@
 ;; Copyright (C) 2014, 2015, 2016 hiddenlotus
 ;; Author: hiddenlotus <kaihaosw@gmail.com>
 ;; Git: https://github.com/hiddenlotus/pcmpl-homebrew.git
-;; Version: 0.92
+;; Version: 0.95
 ;; Created: 2014-08-11
 ;; Keywords: pcomplete, homebrew, tools
 
@@ -33,25 +33,28 @@
 ;;; Code:
 (require 'pcomplete)
 
-(defcustom homebrew-command (executable-find "brew")
-  "Homebrew command.")
+(defun pcmpl-homebrew-get-commands (executable-command shell-command search regex)
+  (when (executable-find executable-command)
+    (with-temp-buffer
+      (call-process-shell-command shell-command nil (current-buffer) nil)
+      (goto-char 0)
+      (search-forward search)
+      (let (commands)
+        (while (re-search-forward regex nil t)
+          (add-to-list 'commands (match-string 1) t))
+        commands))))
 
-(defun pcmpl-homebrew-commands ()
-  (interactive)
+(defun pcmpl-homebrew-get-formulas (&rest args)
   (with-temp-buffer
-    (call-process-shell-command homebrew-command nil (current-buffer) nil "commands")
-    (goto-char 0)
-    (search-forward "Built-in commands")
-    (let (commands)
-      (while (re-search-forward "^\\([[:word:]-.]+\\)" nil t)
-        (push (match-string 1) commands))
-      (remove "External" commands))))
+    (apply 'process-file "brew" nil (list t nil) nil args)
+    (split-string (buffer-string) nil t)))
 
 (defconst pcmpl-homebrew-commands
-  (sort (append '("--version" "ln" "remove" "rm") (pcmpl-homebrew-commands)) 'string<)
+  (remove "External"
+          (pcmpl-homebrew-get-commands "brew" "brew commands"
+                                       "Built-in commands" "^\\([[:word:]-.]+\\)"))
   "List of homebrew commands.")
 
-;;
 (defconst pcmpl-homebrew-local-formulas-commands
   '("cleanup" "ln" "link" "list" "pin" "rm" "remove" "unlink" "unpin" "uninstall"
     "upgrade" "test" "--prefix")
@@ -62,15 +65,14 @@
     "missing" "reinstall" "search" "uses")
   "List of commands that use global formulas.")
 
-(defun pcmpl-homebrew-installed-formulas ()
-  "List of the installed formulas."
-  (split-string (shell-command-to-string "brew list")))
+(defconst pcmpl-homebrew-installed-formulas
+  (pcmpl-homebrew-get-formulas "list")
+  "List of the installed formulas.")
 
-(defun pcmpl-homebrew-all-formulas ()
-  "List of all the formulas."
-  (split-string (shell-command-to-string "brew search")))
+(defconst pcmpl-homebrew-all-formulas
+  (pcmpl-homebrew-get-formulas "search")
+  "List of all the formulas.")
 
-;;
 (defconst pcmpl-homebrew-options-hash-table
   (let (options-hash)
     (setq options-hash (make-hash-table :test 'equal))
@@ -109,22 +111,54 @@
 (defun pcmpl-homebrew-get-command-options (command)
   (gethash command pcmpl-homebrew-options-hash-table))
 
+;; external commands
+;; brew services
+(defconst pcmpl-homebrew-services-commands
+  '("cleanup" "list" "restart" "start" "stop")
+  "List of homebrew services commands.")
+
+(defun pcmpl-homebrew-cask-installed? ()
+  (null
+   (string-match "Not installed"
+                 (shell-command-to-string "brew tap-info caskroom/cask"))))
+
+(when (pcmpl-homebrew-cask-installed?)
+  (defconst pcmpl-homebrew-cask-commands
+    '("audit" "cat" "cleanup" "create" "doctor" "edit" "fetch" "home" "info" "install"
+      "list" "search" "style" "uninstall" "update" "zap")
+    "List of homebrew cask commands.")
+
+  (defconst pcmpl-homebrew-cask-all-casks
+    (pcmpl-homebrew-get-formulas "cask" "search")
+    "List of all casks.")
+
+  (defconst pcmpl-homebrew-cask-local-casks
+    (pcmpl-homebrew-get-formulas "cask" "list")
+    "List of local casks."))
+
 
 ;;;###autoload
 (defun pcomplete/brew ()
   (let ((command (nth 1 pcomplete-args)))
     (pcomplete-here* pcmpl-homebrew-commands)
-    (when (member command pcmpl-homebrew-commands)
-      (while
-          (cond
-           ((pcomplete-match "^-" 0)
-            (pcomplete-here (pcmpl-homebrew-get-command-options command)))
-           ((member command pcmpl-homebrew-local-formulas-commands)
-            (pcomplete-here (pcmpl-homebrew-installed-formulas)))
-           ((member command pcmpl-homebrew-global-formulas-commands)
-            (pcomplete-here (pcmpl-homebrew-all-formulas)))
-           ((string= command "services")
-            (pcomplete-here '("cleanup" "list" "restart" "start" "stop"))))))))
+    (while
+        (cond
+         ((pcomplete-match "^-" 0)
+          (pcomplete-here (pcmpl-homebrew-get-command-options command)))
+         ((member command pcmpl-homebrew-local-formulas-commands)
+          (pcomplete-here pcmpl-homebrew-installed-formulas))
+         ((member command pcmpl-homebrew-global-formulas-commands)
+          (pcomplete-here pcmpl-homebrew-all-formulas))
+         ((string= command "services")
+          (pcomplete-here pcmpl-homebrew-services-commands))
+         ((string= command "cask")
+          (when (pcmpl-homebrew-cask-installed?)
+            (let ((subcommand (nth 2 pcomplete-args)))
+              (pcomplete-here pcmpl-homebrew-cask-commands)
+              (cond ((member subcommand '("fetch" "home" "install" "info"))
+                     (pcomplete-here pcmpl-homebrew-cask-all-casks))
+                    ((string= subcommand "uninstall")
+                     (pcomplete-here pcmpl-homebrew-cask-local-casks))))))))))
 
 (provide 'pcmpl-homebrew)
 
