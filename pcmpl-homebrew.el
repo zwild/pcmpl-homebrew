@@ -3,7 +3,7 @@
 ;; Copyright (C) 2014, 2015, 2016 hiddenlotus
 ;; Author: hiddenlotus <kaihaosw@gmail.com>
 ;; Git: https://github.com/hiddenlotus/pcmpl-homebrew.git
-;; Version: 0.95
+;; Version: 0.96
 ;; Created: 2014-08-11
 ;; Keywords: pcomplete, homebrew, tools
 
@@ -49,10 +49,13 @@
     (apply 'process-file "brew" nil (list t nil) nil args)
     (split-string (buffer-string) nil t)))
 
-(defconst pcmpl-homebrew-commands
+(defun pcmpl-homebrew-commands ()
   (remove "External"
           (pcmpl-homebrew-get-commands "brew" "brew commands"
-                                       "Built-in commands" "^\\([[:word:]-.]+\\)"))
+                                       "Built-in commands" "^\\([[:word:]-.]+\\)")))
+
+(defconst pcmpl-homebrew-commands
+  (pcmpl-homebrew-commands)
   "List of homebrew commands.")
 
 (defconst pcmpl-homebrew-local-formulas-commands
