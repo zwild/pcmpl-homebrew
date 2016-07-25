@@ -49,13 +49,11 @@
     (apply 'process-file "brew" nil (list t nil) nil args)
     (split-string (buffer-string) nil t)))
 
-(defun pcmpl-homebrew-commands ()
+;;;###autoload
+(defconst pcmpl-homebrew-commands
   (remove "External"
           (pcmpl-homebrew-get-commands "brew" "brew commands"
-                                       "Built-in commands" "^\\([[:word:]-.]+\\)")))
-
-(defconst pcmpl-homebrew-commands
-  (pcmpl-homebrew-commands)
+                                       "Built-in commands" "^\\([[:word:]-.]+\\)"))
   "List of homebrew commands.")
 
 (defconst pcmpl-homebrew-local-formulas-commands
