@@ -3,7 +3,7 @@
 ;; Copyright (C) 2014, 2015, 2016 hiddenlotus
 ;; Author: hiddenlotus <kaihaosw@gmail.com>
 ;; Git: https://github.com/hiddenlotus/pcmpl-homebrew.git
-;; Version: 0.97
+;; Version: 0.97.2
 ;; Created: 2014-08-11
 ;; Keywords: pcomplete, homebrew, tools
 
@@ -133,9 +133,6 @@
          "Not installed"
          (shell-command-to-string (format "brew tap-info %s" tap-name)))))
 
-(defun pcmpl-homebrew-services-installed? ()
-  (pcmpl-external-commands-installed? "homebrew/services"))
-
 (defconst pcmpl-homebrew-services-commands
   '("cleanup" "list" "restart" "start" "stop")
   "List of homebrew services commands.")
@@ -144,7 +141,11 @@
 (defun pcmpl-homebrew-cask-installed? ()
   (pcmpl-external-commands-installed? "caskroom/cask"))
 
+(defvar pcmpl-homebrew-cask-installed? nil)
+
 (when (pcmpl-homebrew-cask-installed?)
+  (setq pcmpl-homebrew-cask-installed? t)
+
   (defconst pcmpl-homebrew-cask-commands
     '("audit" "cat" "cleanup" "create" "doctor" "edit" "fetch" "home" "info" "install"
       "list" "search" "style" "uninstall" "update" "zap")
@@ -184,10 +185,9 @@
          ((string= command "help")
           (pcomplete-here pcmpl-homebrew-commands))
          ((string= command "services")
-          (when (pcmpl-homebrew-services-installed?)
-            (pcomplete-here pcmpl-homebrew-services-commands)))
+          (pcomplete-here pcmpl-homebrew-services-commands))
          ((string= command "cask")
-          (when (pcmpl-homebrew-cask-installed?)
+          (when pcmpl-homebrew-cask-installed?
             (let ((subcommand (nth 2 pcomplete-args)))
               (pcomplete-here pcmpl-homebrew-cask-commands)
               (cond ((member subcommand '("fetch" "home" "install" "info"))
