@@ -190,8 +190,11 @@
           (when pcmpl-homebrew-cask-installed?
             (let ((subcommand (nth 2 pcomplete-args)))
               (pcomplete-here pcmpl-homebrew-cask-commands)
-              (cond ((member subcommand '("fetch" "home" "install" "info"))
+              (cond ((member subcommand '("fetch" "home" "info"))
                      (pcomplete-here (pcmpl-homebrew-cask-all-casks)))
+                    ((string= subcommand "install")
+                     (pcomplete-here (pcmpl-homebrew-cask-all-casks))
+                     (and (pcomplete-match "^-" 0) (pcomplete-here '("--force"))))
                     ((string= subcommand "uninstall")
                      (pcomplete-here (pcmpl-homebrew-cask-local-casks)))))))))))
 

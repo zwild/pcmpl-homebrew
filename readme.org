@@ -2,7 +2,7 @@
 #+startup: content
 
 ** Introduction
-   Pcomplete for homebrew.
+   Pcomplete for homebrew, brew services and brew cask.
 
 ** Screenshots
    [[./screenshots/1.png]]
