@@ -148,7 +148,7 @@
 
   (defconst pcmpl-homebrew-cask-commands
     '("audit" "cat" "cleanup" "create" "doctor" "edit" "fetch" "home" "info" "install"
-      "list" "search" "style" "uninstall" "update" "zap")
+      "list" "reinstall" "search" "style" "uninstall" "update" "zap")
     "List of homebrew cask commands.")
 
   (defvar pcmpl-homebrew-cask-all-casks '()
@@ -195,7 +195,7 @@
                     ((string= subcommand "install")
                      (pcomplete-here (pcmpl-homebrew-cask-all-casks))
                      (and (pcomplete-match "^-" 0) (pcomplete-here '("--force"))))
-                    ((string= subcommand "uninstall")
+                    ((member subcommand '("uninstall" "reinstall"))
                      (pcomplete-here (pcmpl-homebrew-cask-local-casks)))))))))))
 
 (provide 'pcmpl-homebrew)
