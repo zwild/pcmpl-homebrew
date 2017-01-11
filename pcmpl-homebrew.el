@@ -3,9 +3,9 @@
 ;; Copyright (C) 2014, 2015, 2016 hiddenlotus
 ;; Author: hiddenlotus <kaihaosw@gmail.com>
 ;; Git: https://github.com/hiddenlotus/pcmpl-homebrew.git
-;; Version: 0.97.2
+;; Version: 0.97.3
 ;; Created: 2014-08-11
-;; Keywords: pcomplete, homebrew, tools
+;; Keywords: pcomplete, homebrew, tools, cask, services
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -29,6 +29,7 @@
 ;;; Commentary:
 
 ;; Pcomplete for homebrew.
+;; Completion for homebrew when using shell or eshell in emacs.
 
 ;;; Code:
 (require 'pcomplete)
@@ -193,10 +194,11 @@
               (cond ((member subcommand '("fetch" "home" "info"))
                      (pcomplete-here (pcmpl-homebrew-cask-all-casks)))
                     ((string= subcommand "install")
-                     (pcomplete-here (pcmpl-homebrew-cask-all-casks))
-                     (and (pcomplete-match "^-" 0) (pcomplete-here '("--force"))))
+                     (and (pcomplete-match "^-" 0) (pcomplete-here '("--force")))
+                     (while (pcomplete-here (pcmpl-homebrew-cask-all-casks))))
                     ((member subcommand '("uninstall" "reinstall"))
-                     (pcomplete-here (pcmpl-homebrew-cask-local-casks)))))))))))
+                     (and (pcomplete-match "^-" 0) (pcomplete-here '("--force")))
+                     (while (pcomplete-here (pcmpl-homebrew-cask-local-casks))))))))))))
 
 (provide 'pcmpl-homebrew)
 
