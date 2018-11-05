@@ -101,15 +101,17 @@
                        "--build-from-source" "--force-bottle") options-hash)
     (puthash "info" '("--github" "--json=" "--all" "--installed") options-hash)
     (puthash "install" '("--debug" "--env=" "--ignore-dependencies" "--only-dependencies"
-                         "--cc=" "--build-from-source" "--devel" "--HEAD"
-                         "--interactive" "--git") options-hash)
+                         "--cc=" "--build-from-source" "--force-bottle" "--include-test"
+                         "--devel" "--HEAD" "--keep-tmp" "--build-bottle" "--force" "-f"
+                         "--verbose" "-v" "--display-times" "--interactive" "--git") options-hash)
     (puthash "link" '("--overwrite" "--dry-run" "--force") options-hash)
     (puthash "linkapps" '("--local") options-hash)
     (puthash "list" '("--unbrewed" "--versions" "--multiple" "--pinned") options-hash)
     (puthash "options" '("--compact" "--all" "--installed") options-hash)
     (puthash "outdated" '("--quiet") options-hash)
     (puthash "prune" '("--dry-run" "-d") options-hash)
-    (puthash "uninstall" '("--force") options-hash)
+    (puthash "uninstall" '("--force" "--ignore-dependencies" "-f") options-hash)
+    (puthash "reinstall" '("--display-times") options-hash)
     (puthash "search" '("--debian" "--fedora" "--fink" "--macports"
                         "--opensuse" "--ubuntu") options-hash)
     (puthash "sh" '("--env=std") options-hash)
@@ -148,8 +150,8 @@
   (setq pcmpl-homebrew-cask-installed? t)
 
   (defconst pcmpl-homebrew-cask-commands
-    '("audit" "cat" "cleanup" "create" "doctor" "edit" "fetch" "home" "info" "install"
-      "list" "reinstall" "search" "style" "uninstall" "update" "zap")
+    '("audit" "cat" "create" "doctor" "edit" "fetch" "home" "info" "install"
+      "list" "outdated" "reinstall" "style" "uninstall" "upgrade" "zap")
     "List of homebrew cask commands.")
 
   (defvar pcmpl-homebrew-cask-all-casks '()
@@ -159,7 +161,7 @@
     (pcmpl-homebrew-set-formulas
      pcmpl-homebrew-cask-all-casks
      (lambda ()
-       (pcmpl-homebrew-get-formulas "cask" "search"))))
+       (pcmpl-homebrew-get-formulas "search" "--casks"))))
 
   (defvar pcmpl-homebrew-cask-local-casks '()
     "List of local casks.")
@@ -194,10 +196,8 @@
               (cond ((member subcommand '("fetch" "home" "info"))
                      (pcomplete-here (pcmpl-homebrew-cask-all-casks)))
                     ((string= subcommand "install")
-                     (and (pcomplete-match "^-" 0) (pcomplete-here '("--force")))
                      (while (pcomplete-here (pcmpl-homebrew-cask-all-casks))))
                     ((member subcommand '("uninstall" "reinstall"))
-                     (and (pcomplete-match "^-" 0) (pcomplete-here '("--force")))
                      (while (pcomplete-here (pcmpl-homebrew-cask-local-casks))))))))))))
 
 (provide 'pcmpl-homebrew)
