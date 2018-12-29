@@ -1,8 +1,8 @@
 ;;; pcmpl-homebrew.el --- pcomplete for homebrew
 
-;; Copyright (C) 2014, 2015, 2016 hiddenlotus
-;; Author: hiddenlotus <kaihaosw@gmail.com>
-;; Git: https://github.com/hiddenlotus/pcmpl-homebrew.git
+;; Copyright (C) 2014-2019 Wei Zhao
+;; Author: zwild <judezhao@outlook.com>
+;; Git: https://github.com/zwild/pcmpl-homebrew.git
 ;; Version: 0.97.3
 ;; Created: 2014-08-11
 ;; Keywords: pcomplete, homebrew, tools, cask, services
