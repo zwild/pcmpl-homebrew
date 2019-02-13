@@ -4,6 +4,8 @@
 ** Introduction
    Pcomplete for homebrew, brew services and brew cask.
 
+   [[https://melpa.org/#/pcmpl-homebrew][file:https://melpa.org/packages/pcmpl-homebrew-badge.svg]]
+
 ** Screenshots
    [[./screenshots/1.png]]
    [[./screenshots/2.png]]
