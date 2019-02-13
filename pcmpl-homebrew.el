@@ -142,7 +142,7 @@
 
 ;; caskroom/cask
 (defun pcmpl-homebrew-cask-installed? ()
-  (pcmpl-external-commands-installed? "caskroom/cask"))
+  (pcmpl-external-commands-installed? "homebrew/cask"))
 
 (defvar pcmpl-homebrew-cask-installed? nil)
 
