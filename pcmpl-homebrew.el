@@ -3,7 +3,7 @@
 ;; Copyright (C) 2014-2019 Wei Zhao
 ;; Author: zwild <judezhao@outlook.com>
 ;; Git: https://github.com/zwild/pcmpl-homebrew.git
-;; Version: 0.97.3
+;; Version: 0.97.4
 ;; Created: 2014-08-11
 ;; Keywords: pcomplete, homebrew, tools, cask, services
 
@@ -34,12 +34,11 @@
 ;;; Code:
 (require 'pcomplete)
 
-(defun pcmpl-homebrew-get-commands (executable-command shell-command search regex)
+(defun pcmpl-homebrew-get-commands (executable-command shell-command regex)
   (when (executable-find executable-command)
     (with-temp-buffer
       (call-process-shell-command shell-command nil (current-buffer) nil)
       (goto-char 0)
-      (search-forward search)
       (let (commands)
         (while (re-search-forward regex nil t)
           (add-to-list 'commands (match-string 1) t))
@@ -51,19 +50,15 @@
     (split-string (buffer-string) nil t)))
 
 (defconst pcmpl-homebrew-commands
-  (remove "External"
-          (pcmpl-homebrew-get-commands "brew" "brew commands"
-                                       "Built-in commands" "^\\([[:word:]-.]+\\)"))
+  (pcmpl-homebrew-get-commands "brew" "brew commands" "^\\([[:word:]-.]+\\)")
   "List of homebrew commands.")
 
 (defconst pcmpl-homebrew-local-formulas-commands
-  '("cleanup" "link" "list" "pin" "reinstall" "unlink" "unpin" "uninstall"
-    "upgrade" "test" "--prefix")
+  '("cleanup" "link" "list" "pin" "unlink" "unpin" "uninstall" "upgrade" "test" "--prefix")
   "List of commands that use local formulas.")
 
 (defconst pcmpl-homebrew-global-formulas-commands
-  '("audit" "cat" "deps" "edit" "fetch" "home" "info" "install" "log"
-    "missing" "reinstall" "search" "uses")
+  '("audit" "cat" "deps" "edit" "fetch" "home" "info" "install" "log" "missing" "search" "uses")
   "List of commands that use global formulas.")
 
 (defmacro pcmpl-homebrew-set-formulas (var command)
@@ -93,37 +88,42 @@
 (defconst pcmpl-homebrew-options-hash-table
   (let (options-hash)
     (setq options-hash (make-hash-table :test 'equal))
-    (puthash "cleanup" '("--force" "-n" "-s" "-ns") options-hash)
+    (puthash "--cache" '("--formula" "--cask") options-hash)
+    (puthash "cleanup" '("--dry-run" "-n" "-s" "-ns") options-hash)
     (puthash "deps" '("--1" "-n" "--union" "--tree" "--all" "--installed") options-hash)
-    (puthash "desc" '("-s" "-n" "-d") options-hash)
-    (puthash "diy" '("--name=" "--version=") options-hash)
+    (puthash "desc" '("-s" "--search" "-n" "--name" "-d" "--description") options-hash)
+    (puthash "doctor" '("--list-checks" "--verbose") options-hash)
+    (puthash "diy" '("--name" "--version") options-hash)
     (puthash "fetch" '("--force" "-v" "--devel" "--HEAD" "--deps"
                        "--build-from-source" "--force-bottle") options-hash)
-    (puthash "info" '("--github" "--json=" "--all" "--installed") options-hash)
-    (puthash "install" '("--debug" "--env=" "--ignore-dependencies" "--only-dependencies"
-                         "--cc=" "--build-from-source" "--force-bottle" "--include-test"
-                         "--devel" "--HEAD" "--keep-tmp" "--build-bottle" "--force" "-f"
+    (puthash "info" '("--analytics" "--days" "--category"
+                      "--github" "--json" "--all" "--installed") options-hash)
+    (puthash "install" '("--debug" "--env" "--ignore-dependencies" "--only-dependencies"
+                         "--cc" "--build-from-source" "--force-bottle" "--include-test"
+                         "--HEAD" "--keep-tmp" "--build-bottle" "--bottle-arch" "--force" "-f"
                          "--verbose" "-v" "--display-times" "--interactive" "--git") options-hash)
     (puthash "link" '("--overwrite" "--dry-run" "--force") options-hash)
     (puthash "linkapps" '("--local") options-hash)
-    (puthash "list" '("--unbrewed" "--versions" "--multiple" "--pinned") options-hash)
-    (puthash "options" '("--compact" "--all" "--installed") options-hash)
-    (puthash "outdated" '("--quiet") options-hash)
-    (puthash "prune" '("--dry-run" "-d") options-hash)
+    (puthash "list" '("--full-name" "--unbrewed" "--versions" "--multiple" "--pinned"
+                      "--formula" "--formulae" "--cask" "--casks" "-1" "-l" "-r" "-t") options-hash)
+    (puthash "options" '("--compact" "--all" "--installed" "--command") options-hash)
+    (puthash "outdated" '("--quiet" "--verbose" "--formula" "--cask" "--json" "--greedy") options-hash)
     (puthash "uninstall" '("--force" "--ignore-dependencies" "-f") options-hash)
-    (puthash "reinstall" '("--display-times") options-hash)
-    (puthash "search" '("--debian" "--fedora" "--fink" "--macports"
-                        "--opensuse" "--ubuntu") options-hash)
-    (puthash "sh" '("--env=std") options-hash)
-    (puthash "tap" '("--repair") options-hash)
-    (puthash "test" '("--devel" "--HEAD") options-hash)
-    (puthash "unlinkapps" '("--local") options-hash)
-    (puthash "unpack" '("--git" "--patch" "--destdir=") options-hash)
-    (puthash "update" '("--rebase") options-hash)
-    (puthash "upgrade" '("--debug" "--env=" "--ignore-dependencies" "--only-dependencies"
-                         "--cc=" "--build-from-source" "--devel" "--HEAD"
-                         "--interactive" "--git" "--all") options-hash)
-    (puthash "uses" '("--installed" "--recursive" "--devel" "--HEAD") options-hash)
+    (puthash "reinstall" '("--display-times" "--build-from-source"
+                           "--interactive" "--keep-tmp" "--force" "--verbose") options-hash)
+    (puthash "search" '("--formula" "--formulae" "--cask" "--casks" "--desc" "--debian"
+                        "--fedora" "--fink" "--macports" "--opensuse" "--ubuntu") options-hash)
+    (puthash "sh" '("--env=std" "--cmd") options-hash)
+    (puthash "tap" '("--repair" "--full" "--shallow" "--force-auto-update" "--list-pinned") options-hash)
+    (puthash "test" '("--devel" "--HEAD" "--keep-tmp" "--retry") options-hash)
+    (puthash "unlink" '("--dry-run") options-hash)
+    (puthash "unpack" '("--git" "--patch" "--destdir=" "--force") options-hash)
+    (puthash "update" '("--merge" "--preinstall" "--force") options-hash)
+    (puthash "upgrade" '("--debug" "--formula" "--cask" "--build-from-source" "--interactive"
+                         "--force-bottle" "--fetch-HEAD" "--ignore-pinned" "--keep-tmp" "--verbose"
+                         "--display-times" "--dry-run" "--greedy") options-hash)
+    (puthash "uses" '("--installed" "--recursive" "--include-build"
+                      "--include-test" "--include-optional" "--skip-recommended") options-hash)
     options-hash))
 
 (defun pcmpl-homebrew-get-command-options (command)
@@ -137,7 +137,7 @@
          (shell-command-to-string (format "brew tap-info %s" tap-name)))))
 
 (defconst pcmpl-homebrew-services-commands
-  '("cleanup" "list" "restart" "start" "stop")
+  '("cleanup" "list" "restart" "start" "stop" "run")
   "List of homebrew services commands.")
 
 ;; caskroom/cask
@@ -150,8 +150,7 @@
   (setq pcmpl-homebrew-cask-installed? t)
 
   (defconst pcmpl-homebrew-cask-commands
-    '("audit" "cat" "create" "doctor" "edit" "fetch" "home" "info" "install"
-      "list" "outdated" "reinstall" "style" "uninstall" "upgrade" "zap")
+    '("audit" "cat" "create" "edit" "fetch" "help" "info" "install" "style" "uninstall" "zap")
     "List of homebrew cask commands.")
 
   (defvar pcmpl-homebrew-cask-all-casks '()
@@ -170,7 +169,7 @@
     (pcmpl-homebrew-set-formulas
      pcmpl-homebrew-cask-local-casks
      (lambda ()
-       (pcmpl-homebrew-get-formulas "cask" "list")))))
+       (pcmpl-homebrew-get-formulas "list" "--cask")))))
 
 
 ;;;###autoload
@@ -181,6 +180,11 @@
         (cond
          ((pcomplete-match "^-" 0)
           (pcomplete-here (pcmpl-homebrew-get-command-options command)))
+         ((string= command "reinstall")
+          (pcomplete-here
+           (if pcmpl-homebrew-cask-installed?
+               (append (pcmpl-homebrew-installed-formulas) (pcmpl-homebrew-cask-local-casks))
+             (pcmpl-homebrew-installed-formulas))))
          ((member command pcmpl-homebrew-local-formulas-commands)
           (pcomplete-here (pcmpl-homebrew-installed-formulas)))
          ((member command pcmpl-homebrew-global-formulas-commands)
@@ -197,7 +201,7 @@
                      (pcomplete-here (pcmpl-homebrew-cask-all-casks)))
                     ((string= subcommand "install")
                      (while (pcomplete-here (pcmpl-homebrew-cask-all-casks))))
-                    ((member subcommand '("uninstall" "reinstall"))
+                    ((string= subcommand "uninstall")
                      (while (pcomplete-here (pcmpl-homebrew-cask-local-casks))))))))))))
 
 (provide 'pcmpl-homebrew)
