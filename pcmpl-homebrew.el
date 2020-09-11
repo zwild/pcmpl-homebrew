@@ -33,6 +33,7 @@
 
 ;;; Code:
 (require 'pcomplete)
+(require 'seq)
 
 (defun pcmpl-homebrew-get-commands (executable-command shell-command regex)
   (when (executable-find executable-command)
@@ -54,7 +55,7 @@
   "List of homebrew commands.")
 
 (defconst pcmpl-homebrew-local-formulas-commands
-  '("cleanup" "link" "list" "pin" "unlink" "unpin" "uninstall" "upgrade" "test" "--prefix")
+  '("cleanup" "link" "list" "pin" "unlink" "unpin" "uninstall" "test" "--prefix")
   "List of commands that use local formulas.")
 
 (defconst pcmpl-homebrew-global-formulas-commands
@@ -129,6 +130,9 @@
 (defun pcmpl-homebrew-get-command-options (command)
   (gethash command pcmpl-homebrew-options-hash-table))
 
+(defun pcmpl-contains-options (option)
+  (seq-find (lambda (s) (string= s option)) pcomplete-args))
+
 ;; external commands
 ;; homebrew/services
 (defun pcmpl-external-commands-installed? (tap-name)
@@ -184,6 +188,11 @@
           (pcomplete-here
            (if pcmpl-homebrew-cask-installed?
                (append (pcmpl-homebrew-installed-formulas) (pcmpl-homebrew-cask-local-casks))
+             (pcmpl-homebrew-installed-formulas))))
+         ((string= command "upgrade")
+          (pcomplete-here
+           (if (pcmpl-contains-options "--cask")
+               (pcmpl-homebrew-cask-local-casks)
              (pcmpl-homebrew-installed-formulas))))
          ((member command pcmpl-homebrew-local-formulas-commands)
           (pcomplete-here (pcmpl-homebrew-installed-formulas)))
